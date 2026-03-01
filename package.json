@@ -1,0 +1,15 @@
+{
+  "name": "study-dashboard",
+  "version": "1.0.0",
+  "description": "Simple study launcher app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^40.6.1"
+  }
+}

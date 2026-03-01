@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <title>Study Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:       rgba(255, 248, 245, 0.82);
+      --border:   rgba(210, 180, 170, 0.35);
+      --text:     #3a2e2e;
+      --muted:    #b09090;
+      --accent:   #e8a0a0;
+      --card-bg:  rgba(255, 255, 255, 0.65);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'DM Sans', sans-serif;
+      overflow: hidden;
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── WIDGET ── */
+    .app {
+      position: relative;
+      z-index: 1;
+      width: 300px;
+      background: var(--bg);
+      backdrop-filter: blur(40px) saturate(1.6);
+      -webkit-backdrop-filter: blur(40px) saturate(1.6);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 18px 18px 14px;
+      box-shadow:
+        0 2px 0 rgba(255,255,255,0.9) inset,
+        0 20px 60px rgba(180, 120, 110, 0.18),
+        0 4px 20px rgba(200, 150, 140, 0.12);
+      -webkit-app-region: drag;
+      animation: float-in 0.55s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    @keyframes float-in {
+      from { opacity:0; transform: translateY(16px) scale(0.94); }
+      to   { opacity:1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .app-title {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: 17px;
+      color: #9a6a6a;
+      letter-spacing: 0.01em;
+    }
+
+    .close-btn {
+      -webkit-app-region: no-drag;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: rgba(232, 160, 160, 0.25);
+      border: 1px solid rgba(232, 160, 160, 0.4);
+      color: #c47a7a;
+      font-size: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      line-height: 1;
+    }
+    .close-btn:hover {
+      background: #e8a0a0;
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 0 10px rgba(232, 160, 160, 0.5);
+    }
+
+    /* ── CLOCK ── */
+    .time-block {
+      text-align: center;
+      margin-bottom: 16px;
+      -webkit-app-region: drag;
+    }
+
+    #clock {
+      font-family: 'DM Serif Display', serif;
+      font-size: 44px;
+      color: #3a2e2e;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    #date-str {
+      font-size: 10px;
+      font-weight: 300;
+      color: var(--muted);
+      letter-spacing: 0.14em;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    /* ── GRID ── */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      -webkit-app-region: no-drag;
+    }
+
+    /* ── CARDS ── */
+    .card {
+      position: relative;
+      border-radius: 20px;
+      padding: 15px 10px 13px;
+      cursor: pointer;
+      border: 1px solid rgba(210,185,180,0.4);
+      background: var(--card-bg);
+      overflow: hidden;
+      transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1),
+                  box-shadow 0.22s ease,
+                  border-color 0.22s;
+      -webkit-app-region: no-drag;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset,
+                  0 2px 8px rgba(180,130,120,0.08);
+    }
+
+    .card:hover {
+      transform: translateY(-3px) scale(1.03);
+      border-color: rgba(232,160,160,0.5);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.9) inset,
+        0 10px 28px rgba(220, 160, 150, 0.2);
+    }
+
+    .card:active {
+      transform: scale(0.96);
+      transition-duration: 0.1s;
+    }
+
+    /* card pastel blush fill on hover */
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255,220,210,0.25), rgba(255,200,220,0.1));
+      opacity: 0;
+      transition: opacity 0.25s;
+      pointer-events: none;
+    }
+    .card:hover::before { opacity: 1; }
+
+    /* Shine sweep */
+    .shine {
+      position: absolute;
+      top: 0; left: -120%;
+      width: 70%; height: 100%;
+      background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.45) 50%, transparent 70%);
+      pointer-events: none;
+      transition: left 0.5s ease;
+    }
+    .card:hover .shine { left: 160%; }
+
+    .card-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .icon-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gif-icon {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+      display: block;
+      transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .card:hover .gif-icon { transform: scale(1.15) rotate(-5deg); }
+
+    .emoji {
+      font-size: 32px;
+      line-height: 1;
+      display: block;
+      transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .card:hover .emoji { transform: scale(1.2) rotate(-5deg); }
+
+    /* click ripple */
+    .ripple {
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      border: 2px solid rgba(232, 160, 160, 0.6);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .card:active .ripple {
+      animation: ripple-pop 0.38s ease forwards;
+    }
+    @keyframes ripple-pop {
+      0%   { opacity: 0.8; transform: scale(0.5); }
+      100% { opacity: 0;   transform: scale(1.8); }
+    }
+
+    .card-name {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: #6a4a4a;
+      letter-spacing: 0.02em;
+    }
+
+    /* staggered entry */
+    .card { animation: card-rise 0.5s cubic-bezier(0.16,1,0.3,1) both; }
+    .card:nth-child(1) { animation-delay: 0.12s; }
+    .card:nth-child(2) { animation-delay: 0.19s; }
+    .card:nth-child(3) { animation-delay: 0.26s; }
+    .card:nth-child(4) { animation-delay: 0.33s; }
+
+    @keyframes card-rise {
+      from { opacity:0; transform: translateY(12px) scale(0.96); }
+      to   { opacity:1; transform: translateY(0)    scale(1); }
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      margin-top: 13px;
+      text-align: center;
+    }
+    .footer-text {
+      font-size: 8px;
+      font-weight: 300;
+      letter-spacing: 0.16em;
+      color: rgba(160, 120, 110, 0.5);
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="app">
+  <div class="top-bar">
+    <span class="app-title">Hi Shrey ✦</span>
+    <button class="close-btn" onclick="closeApp()">✕</button>
+  </div>
+
+  <div class="time-block">
+    <div id="clock">12:00</div>
+    <div id="date-str">loading...</div>
+  </div>
+
+  <div class="grid">
+
+    <div class="card" id="c-gmail" onclick="openSite('gmail')">
+      <div class="card-inner">
+        <div class="icon-wrap">
+          <span class="emoji">💌</span>
+          <div class="ripple"></div>
+        </div>
+        <p class="card-name">Gmail</p>
+      </div>
+      <div class="shine"></div>
+    </div>
+
+    <div class="card" id="c-leetcode" onclick="openSite('leetcode')">
+      <div class="card-inner">
+        <div class="icon-wrap">
+          <span class="emoji">💻</span>
+          <div class="ripple"></div>
+        </div>
+        <p class="card-name">LeetCode</p>
+      </div>
+      <div class="shine"></div>
+    </div>
+
+    <div class="card" id="c-github" onclick="openSite('github')">
+      <div class="card-inner">
+        <div class="icon-wrap">
+          <span class="emoji">👩🏻‍💻</span>
+          <div class="ripple"></div>
+        </div>
+        <p class="card-name">GitHub</p>
+      </div>
+      <div class="shine"></div>
+    </div>
+
+    <div class="card" id="c-noise" onclick="openSite('noise')">
+      <div class="card-inner">
+        <div class="icon-wrap">
+          <span class="emoji">🎧</span>
+          <div class="ripple"></div>
+        </div>
+        <p class="card-name">White Noise</p>
+      </div>
+      <div class="shine"></div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <span class="footer-text">drag to move · click to open</span>
+  </div>
+</div>
+
+<script>
+  /* ── CLOCK ── */
+  function tick() {
+    const now = new Date();
+    let h = now.getHours();
+    const ampm = h >= 12 ? 'pm' : 'am';
+    h = h % 12 || 12;
+    const m = String(now.getMinutes()).padStart(2,'0');
+    document.getElementById('clock').textContent = h + ':' + m + ' ' + ampm;
+
+    const days   = ['sun','mon','tue','wed','thu','fri','sat'];
+    const months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+    const d  = days[now.getDay()];
+    const mo = months[now.getMonth()];
+    const dt = now.getDate();
+    document.getElementById('date-str').textContent = `${d}, ${mo} ${dt}`;
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  /* ── FLOATING BLOSSOMS CANVAS ── */
+  const canvas = document.getElementById('bg');
+  const ctx = canvas.getContext('2d');
+  let W, H, petals;
+
+  const SHAPES = ['✿', '✦', '·', '˚'];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function initPetals() {
+    petals = Array.from({length: 22}, () => ({
+      x:    Math.random() * W,
+      y:    Math.random() * H,
+      size: Math.random() * 9 + 5,
+      vx:   (Math.random() - 0.5) * 0.12,
+      vy:   -(Math.random() * 0.2 + 0.05),
+      a:    Math.random() * 0.18 + 0.04,
+      shape: SHAPES[Math.floor(Math.random() * SHAPES.length)],
+      hue:  Math.random() > 0.5 ? '340' : '20',
+    }));
+  }
+
+  function drawPetals() {
+    ctx.clearRect(0, 0, W, H);
+    for (const p of petals) {
+      ctx.font = `${p.size}px serif`;
+      ctx.fillStyle = `hsla(${p.hue}, 60%, 80%, ${p.a})`;
+      ctx.fillText(p.shape, p.x, p.y);
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.y < -20) { p.y = H + 10; p.x = Math.random() * W; }
+      if (p.x < -20) p.x = W + 10;
+      if (p.x > W + 20) p.x = -10;
+    }
+    requestAnimationFrame(drawPetals);
+  }
+
+  resize();
+  initPetals();
+  drawPetals();
+  window.addEventListener('resize', () => { resize(); initPetals(); });
+</script>
+<script src="renderer.js"></script>
+</body>
+</html>

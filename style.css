@@ -1,0 +1,84 @@
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* MAIN WIDGET */
+.app {
+  background: rgba(30, 30, 40, 0.75);
+  backdrop-filter: blur(20px);
+  padding: 25px;
+  border-radius: 20px;
+  text-align: center;
+  color: white;
+  width: 300px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+
+  -webkit-app-region: drag;
+}
+
+/* TOP BAR */
+.top-bar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* CLOSE BUTTON */
+.close-btn {
+  background: #ff5f57;
+  border: none;
+  color: white;
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  -webkit-app-region: no-drag;
+}
+
+.close-btn:hover {
+  background: #ff2e2e;
+}
+
+h1 {
+  margin-top: 5px;
+  margin-bottom: 20px;
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+/* CARDS */
+.card {
+  background: rgba(255,255,255,0.2);
+  border-radius: 15px;
+  padding: 20px;
+  cursor: pointer;
+  transition: 0.25s;
+
+  -webkit-app-region: no-drag;
+}
+
+.card:hover {
+  transform: scale(1.06);
+  background: rgba(255,255,255,0.3);
+  box-shadow: 0 0 20px rgba(255,255,255,0.3);
+}
+
+.emoji {
+  font-size: 40px;
+}
+
+p {
+  margin-top: 10px;
+  font-size: 16px;
+}
